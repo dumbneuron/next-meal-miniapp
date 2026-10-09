@@ -1,0 +1,10 @@
+{
+  "name": "next-meal-local-platform",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js",
+    "check:local": "node scripts/local-check.js"
+  }
+}

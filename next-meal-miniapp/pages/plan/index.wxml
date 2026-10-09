@@ -1,0 +1,63 @@
+<view class="page plan-page">
+  <view class="plan-header">
+    <view class="eyebrow">NEXT MEAL / 我的计划</view>
+    <view class="title">找到自己的节奏。</view>
+    <view class="subtitle">先选方法，再填身体资料。参考目标由系统计算，预览后才启用。</view>
+  </view>
+
+  <view wx:if="{{activePlan}}" class="active-card">
+    <view class="active-top row"><text>正在执行</text><text class="active-badge">{{activeModeName}}</text></view>
+    <view class="active-title">接下来 7 天</view>
+    <view class="active-sub">{{activePlan.mode === 'cycle' ? '点选两天交换日型，训练或聚餐改期也能接上' : '按已确认的阶段目标执行，随时可在下方重新设定'}}</view>
+    <view class="week-row">
+      <view wx:for="{{activePreview.days}}" wx:key="date" class="day-pill {{item.tone}} {{swapFrom === item.date ? 'picked' : ''}}" data-date="{{item.date}}" bindtap="pickSwap">
+        <text class="day-week">{{item.weekday}}</text><text class="day-date">{{item.dayNumber}}</text><text class="day-type">{{item.type === 'high' ? '高' : item.type === 'low' ? '低' : item.type === 'mid' ? '中' : '·'}}</text>
+      </view>
+    </view>
+    <view class="active-footer row"><text>7 天总量 <text class="strong">{{activePreview.calories}}</text> 千卡</text><text>日型可调整</text></view>
+  </view>
+
+  <view class="section-head row"><view><view class="eyebrow">STEP 01 / 选择节奏</view><view class="section-title">你想怎么安排？</view><view class="subtitle">方法会持续更新，按当前生活状态选就好。</view></view><text class="section-decor">01</text></view>
+  <view class="mode-list">
+    <view wx:for="{{modes}}" wx:key="id" class="mode-card {{selectedMethodId === item.id ? 'selected' : ''}}" data-method="{{item.id}}" bindtap="chooseMode">
+      <view class="mode-icon">{{item.icon}}</view><view class="mode-copy"><view class="mode-name">{{item.title}}</view><view class="mode-desc">{{item.subtitle}}</view><view class="mode-suitable">适合 {{item.suitable}}</view><view class="mode-source">{{item.sourceTitle}} · v{{item.version}}</view></view><view class="mode-check">{{selectedMethodId === item.id ? '✓' : '＋'}}</view>
+    </view>
+  </view>
+
+  <view class="section-head"><view class="eyebrow">STEP 02 / 自动计算</view><view class="section-title">填身体资料，目标自动算</view><view class="subtitle">体重是核心输入；年龄、身高和活动量帮助估算。热量和三大营养素会自动给出。</view></view>
+  <view class="form-panel">
+    <view class="profile-grid">
+      <view class="profile-cell"><text>计算用性别</text><picker range="{{sexLabels}}" value="{{sexIndex}}" bindchange="chooseSex"><view class="profile-value">{{sexLabels[sexIndex]}} ▾</view></picker></view>
+      <view class="profile-cell"><text>年龄</text><view class="profile-input"><input type="number" value="{{profile.age}}" placeholder="周岁" data-field="age" bindinput="profileInput" /><text>岁</text></view></view>
+      <view class="profile-cell"><text>身高</text><view class="profile-input"><input type="digit" value="{{profile.heightCm}}" placeholder="厘米" data-field="heightCm" bindinput="profileInput" /><text>cm</text></view></view>
+      <view class="profile-cell weight"><text>当前体重</text><view class="profile-input"><input type="digit" value="{{profile.weightKg}}" placeholder="千克" data-field="weightKg" bindinput="profileInput" /><text>kg</text></view></view>
+    </view>
+    <view class="activity-row"><text>日常活动量</text><picker range="{{activityLabels}}" value="{{activityIndex}}" bindchange="chooseActivity"><view class="activity-value">{{activityLabels[activityIndex]}} ▾</view></picker></view>
+    <view class="health-row" bindtap="toggleHealth"><view class="check-box {{profile.healthClear ? 'checked' : ''}}">{{profile.healthClear ? '✓' : ''}}</view><text>我已满 18 岁，且不处于孕哺期，也没有需要个体化饮食方案的疾病、用药或进食障碍情况。</text></view>
+    <button class="button-primary calculate-button" bindtap="calculate">自动生成每日目标 ↗</button>
+    <view wx:if="{{profileError}}" class="profile-error">{{profileError}}</view>
+    <view class="formula-intro">使用 Mifflin-St Jeor 静息消耗估算，再结合活动量给出参考起点；结果不是精确消耗，也不是医疗方案。</view>
+  </view>
+
+  <view wx:if="{{estimateReady}}" class="estimate-panel">
+    <view class="eyebrow">03 / YOUR STARTING POINT</view><view class="estimate-title">参考目标已算好</view><view class="estimate-sub">基于 {{profile.weightKg}}kg 体重和活动量生成，预览后再决定是否启用。</view>
+    <view class="estimate-main"><text>{{form.calories}}</text><view>kcal / 天</view></view>
+    <view class="macro-results"><view><text>蛋白</text><view>{{form.protein}} g</view></view><view><text>碳水</text><view>{{form.carbs}} g</view></view><view><text>脂肪</text><view>{{form.fat}} g</view></view></view>
+    <view class="estimate-detail">静息消耗约 {{estimateDetails.bmr}} kcal · 活动后维持消耗粗估 {{estimateDetails.maintenance}} kcal · 起点按约 15% 差额计算</view>
+    <view wx:if="{{mode === 'taper'}}" class="mode-proposal"><view class="proposal-heading">渐降节奏已安排</view><view class="proposal-copy">默认每 7 天碳水减少 {{form.stepGrams}}g，共 3 个阶段；第三阶段后保持，不自动继续下降。</view></view>
+    <view wx:if="{{mode === 'cycle'}}" class="mode-proposal"><view class="proposal-heading">碳循环日型已安排</view><view class="proposal-copy">从基础碳水重新分配：低碳 {{form.lowCarbs}}g{{form.pattern === 'six' ? ' · 中碳 ' + form.midCarbs + 'g' : ''}} · 高碳 {{form.highCarbs}}g。</view><view class="pattern-row"><text class="small-chip {{form.pattern === 'four' ? 'on' : ''}}" data-pattern="four" bindtap="choosePattern">三低一高</text><text class="small-chip {{form.pattern === 'six' ? 'on' : ''}}" data-pattern="six" bindtap="choosePattern">六日循环</text></view></view>
+    <view class="advanced-toggle" bindtap="toggleAdvanced">{{showAdvanced ? '收起数值调整 −' : '想自己微调数值？展开进阶设置 ＋'}}</view>
+    <view wx:if="{{showAdvanced}}" class="advanced-panel"><view class="form-grid"><view class="form-cell calories"><text>每日热量</text><view class="input-line"><input type="digit" value="{{form.calories}}" data-field="calories" bindinput="input" /><text>kcal</text></view></view><view class="form-cell"><text>蛋白质</text><view class="input-line"><input type="digit" value="{{form.protein}}" data-field="protein" bindinput="input" /><text>g</text></view></view><view class="form-cell"><text>碳水</text><view class="input-line"><input type="digit" value="{{form.carbs}}" data-field="carbs" bindinput="input" /><text>g</text></view></view><view class="form-cell"><text>脂肪</text><view class="input-line"><input type="digit" value="{{form.fat}}" data-field="fat" bindinput="input" /><text>g</text></view></view></view><view wx:if="{{mode === 'taper'}}" class="mini-input row"><text>每阶段碳水减少</text><view class="input-line"><input type="digit" value="{{form.stepGrams}}" data-field="stepGrams" bindinput="input" /><text>g</text></view></view><view wx:if="{{mode === 'cycle'}}"><view class="mini-input row"><text>低碳日</text><view class="input-line"><input type="digit" value="{{form.lowCarbs}}" data-field="lowCarbs" bindinput="input" /><text>g</text></view></view><view wx:if="{{form.pattern === 'six'}}" class="mini-input row"><text>中碳日</text><view class="input-line"><input type="digit" value="{{form.midCarbs}}" data-field="midCarbs" bindinput="input" /><text>g</text></view></view><view class="mini-input row"><text>高碳日</text><view class="input-line"><input type="digit" value="{{form.highCarbs}}" data-field="highCarbs" bindinput="input" /><text>g</text></view></view></view></view>
+    <button class="button-primary plan-action" bindtap="build">预览我的 7 天计划 →</button>
+  </view>
+
+  <view id="preview" wx:if="{{draftPreview}}" class="preview-panel">
+    <view class="eyebrow">04 / TAKE A LOOK</view><view class="preview-title">确认前，先看见每一天。</view>
+    <view class="preview-summary">前 7 天总量 {{draftPreview.calories}} 千卡 <text wx:if="{{mode !== 'taper'}}">· 与稳定执行相比 {{draftPreview.difference > 0 ? '+' : ''}}{{draftPreview.difference}} 千卡</text></view>
+    <view wx:if="{{draftPreview.stages.length}}" class="stage-overview"><view class="stage-overview-title">完整渐降节奏 · 每阶段 {{form.stageDays}} 天</view><view wx:for="{{draftPreview.stages}}" wx:key="label" class="stage-overview-row"><view><text>{{item.label}}</text><text class="stage-range">第 {{item.range}}</text></view><view class="stage-values">{{item.calories}} kcal <text>· 碳水 {{item.carbs}}g</text></view></view></view>
+    <view wx:for="{{draftPreview.days}}" wx:key="date" class="preview-day row"><view class="row"><view class="type-dot {{item.tone}}"></view><view><view class="preview-dayname">{{item.weekday}} · {{item.typeName}}</view><view class="preview-date">{{item.shortDate}}</view></view></view><view class="preview-numbers"><view>{{item.calories}} <text>kcal</text></view><view>碳水 {{item.carbs}} g</view></view></view>
+    <view class="preview-note">数值是公式估算与日型排程的参考，存在个体误差；经你确认才启用，不代表减脂效果预测。</view>
+    <button class="button-primary activate" bindtap="activate">确认并启用 {{modeName}}</button>
+  </view>
+  <view class="bottom-space"></view>
+</view>

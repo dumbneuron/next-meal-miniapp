@@ -1,0 +1,16 @@
+<view class="growth-page">
+  <view class="growth-header"><view class="eyebrow">NEXT MEAL · 成长</view><view class="title">每一步，都留下来。</view><view class="subtitle">勋章记录真实行动，不以热量或体重变化评判你。</view></view>
+  <view class="growth-body">
+    <view class="summary-card"><view class="summary-number">{{growth.effectiveDays}}<text>天</text></view><view><view class="summary-title">已经留下饮食记录</view><text>{{unlockedCount}} / {{growth.badges.length}} 枚成长勋章已点亮</text></view></view>
+    <view class="section-title">成长勋章</view>
+    <view wx:for="{{growth.badges}}" wx:key="id" class="medal-card {{item.unlocked ? 'unlocked' : ''}}"><view class="medal-icon">{{item.unlocked ? '✦' : '◇'}}</view><view class="medal-copy"><view class="medal-name">{{item.title}} <text>{{item.unlocked ? '已获得' : '进行中'}}</text></view><view class="medal-desc">{{item.description}}</view><view class="medal-track"><view class="badge-fill-{{item.progressPercent}}"></view></view><view class="medal-progress">{{item.count}} / {{item.target}} 天</view></view></view>
+    <view wx:if="{{milestones.firstFive.unlocked || milestones.tenComplete.unlocked}}" class="section-title">我的行动小结</view>
+    <view wx:if="{{milestones.firstFive.unlocked}}" class="report-card"><view class="report-kicker">累计 5 个有效日 · {{milestones.firstFive.achievedOn}}</view><view class="report-title">第一份饮食记录小结</view><view class="report-copy">这 5 个有记录的日子里，你记下了 {{milestones.firstFive.mealCount}} 餐。</view><view wx:if="{{milestones.firstFive.repeated}}" class="report-highlight">“{{milestones.firstFive.repeated.name}}”出现了 {{milestones.firstFive.repeated.count}} 次；下次可从常吃餐直接复用。</view><view wx:else class="report-highlight">常吃餐还在积累。再遇到熟悉的餐食，就能少填一次。</view></view>
+    <view wx:if="{{milestones.tenComplete.unlocked}}" class="report-card"><view class="report-kicker">累计 10 个完整日 · {{milestones.tenComplete.achievedOn}}</view><view class="report-title">10 日行动报告</view><view class="report-copy">你确认了 10 个完整记录日，共记下 {{milestones.tenComplete.mealCount}} 餐；其中 {{milestones.tenComplete.reusedMeals}} 餐直接复用了过去的记录。</view><view class="report-highlight">已经有了可回看的记录。接下来保持熟悉的节奏，或到计划页预览其他方法，再由你决定。</view></view>
+    <view wx:if="{{milestones.firstFive.unlocked || milestones.tenComplete.unlocked}}" class="report-note">小结根据当前保留的记录生成；更正或删除旧记录后，数字会重新计算。</view>
+    <view class="rules-card"><view>怎样计算？</view><text>一天至少有一餐记录，就算 1 个有效记录日。记录后再确认“今天已记完整”，才算 1 个完整记录日。两种天数都累计计算，断一天也不清零。</text></view>
+    <view class="section-title">最近 7 天</view>
+    <view class="week-card"><view class="week-days"><view wx:for="{{week.days}}" wx:key="date" class="week-day"><view class="week-dot {{item.recorded ? 'recorded' : ''}} {{item.complete ? 'complete' : ''}}">{{item.recorded ? '✓' : ''}}</view><text>{{item.label}}</text></view></view><view class="week-copy">{{week.message}}</view></view>
+    <view class="actions"><button class="primary-action" bindtap="toRecord">记下一餐</button><view bindtap="toTrend">看体重与记录趋势 ›</view></view>
+  </view><view class="bottom-space"></view>
+</view>

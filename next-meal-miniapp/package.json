@@ -1,0 +1,12 @@
+{
+  "name": "next-meal-miniapp",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "test:e2e:local": "node tests/e2e-local.js"
+  },
+  "devDependencies": {
+    "miniprogram-automator": "^0.12.1"
+  }
+}

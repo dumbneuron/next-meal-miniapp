@@ -1,0 +1,41 @@
+<view class="today-page">
+  <view class="today-header">
+    <view class="header-line"><view class="brand"><text class="brand-mark">N.</text><text>下一餐</text></view><view class="mine-link" bindtap="toSettings">我的 <text>↗</text></view></view>
+    <view class="date-line">{{today}} <text>{{weekday}}</text></view>
+    <view class="hero-title">{{comeback ? '回来就好，从下一餐继续。' : hasPlan ? '今天，吃得明白一点。' : '从下一餐开始。'}}</view>
+    <view class="hero-sub">{{comeback ? '之前的记录和勋章都还在。今天先记一餐。' : hasPlan ? '看一眼进度，吃一餐记一餐。' : '先记录也行，计划可以稍后再定。'}}</view>
+    <view class="record-action" bindtap="toRecord"><view class="record-action-icon">＋</view><view><view>记下一餐</view><text>点一下，直接开始记录</text></view><text class="record-action-arrow">→</text></view>
+  </view>
+
+  <view wx:if="{{!hasPlan}}" class="onboarding-content">
+    <view class="start-card"><view class="card-index">建立你的节奏</view><view class="start-title">计划也可以很简单。</view><view class="start-copy">填基本资料，系统计算参考目标。选好方式后，再看 7 天安排。</view><button class="button-primary" bindtap="toPlan">看看适合我的计划 <text>→</text></button></view>
+    <view class="section-head"><view><view class="section-index">可选方式</view><view class="section-title">选一个能坚持的节奏</view></view></view>
+    <view wx:for="{{startMethods}}" wx:key="id" class="start-method" data-id="{{item.id}}" bindtap="selectStartMethod"><view class="start-method-mark">{{item.mode === 'taper' ? '↘' : item.mode === 'cycle' ? '↗' : '≈'}}</view><view class="start-method-copy"><view>{{item.title}}</view><text>{{item.subtitle}}</text></view><text class="start-method-arrow">›</text></view>
+    <view class="onboarding-note">可先预览再启用，已发布的新方法也会显示在这里。</view>
+  </view>
+
+  <view wx:if="{{hasPlan}}" class="today-content">
+    <view class="energy-card">
+      <view class="energy-head"><text>今日摄入</text><text>{{dayTarget.typeName}} · 目标 {{dayTarget.calories}} kcal</text></view>
+      <view class="energy-center"><view><view class="energy-label">{{remainingLabel}}</view><view class="energy-value">{{remainingAbs}}<text> kcal</text></view><view class="energy-caption">已记录 {{eaten.calories}} kcal · {{meals.length}} 餐</view></view><view class="energy-emblem"><text>{{progress}}%</text><view>进度</view></view></view>
+      <view class="energy-track"><view style="width: {{progress}}%;"></view></view>
+      <view wx:if="{{overTarget}}" class="energy-note">超过参考目标也没关系，下一餐正常记录就好。</view>
+      <view class="macro-strip"><view class="macro-cell"><view class="macro-name"><text class="macro-dot protein"></text>蛋白质</view><view class="macro-number">{{eaten.protein}}<text> / {{dayTarget.protein}}g</text></view><view class="macro-track"><view class="protein-fill" style="width: {{proteinProgress}}%;"></view></view></view><view class="macro-cell"><view class="macro-name"><text class="macro-dot carbs"></text>碳水</view><view class="macro-number">{{eaten.carbs}}<text> / {{dayTarget.carbs}}g</text></view><view class="macro-track"><view class="carbs-fill" style="width: {{carbsProgress}}%;"></view></view></view><view class="macro-cell"><view class="macro-name"><text class="macro-dot fat"></text>脂肪</view><view class="macro-number">{{eaten.fat}}<text> / {{dayTarget.fat}}g</text></view><view class="macro-track"><view class="fat-fill" style="width: {{fatProgress}}%;"></view></view></view></view>
+    </view>
+
+    <view class="section-head"><view><view class="section-index">今天的餐食</view><view class="section-title">吃了什么</view></view><text class="section-action" bindtap="toRecord">添加 ＋</text></view>
+    <view class="meal-list"><view wx:for="{{mealSlots}}" wx:key="type" class="meal-row" data-type="{{item.type}}" bindtap="toMealSlot"><view class="meal-index">{{item.number}}</view><view class="meal-copy"><view>{{item.label}}</view><text>{{item.meals.length ? item.names : '还没记录 · 点此添加'}}</text></view><view class="meal-end">{{item.meals.length ? item.calories + ' kcal' : '＋'}}</view></view></view>
+
+    <view class="section-head"><view><view class="section-index">常吃餐</view><view class="section-title">熟悉的，一键记入</view></view></view>
+    <view class="meal-tabs"><text class="meal-tab {{mealType === 'breakfast' ? 'active' : ''}}" data-type="breakfast" bindtap="chooseType">早餐</text><text class="meal-tab {{mealType === 'lunch' ? 'active' : ''}}" data-type="lunch" bindtap="chooseType">午餐</text><text class="meal-tab {{mealType === 'dinner' ? 'active' : ''}}" data-type="dinner" bindtap="chooseType">晚餐</text><text class="meal-tab {{mealType === 'snack' ? 'active' : ''}}" data-type="snack" bindtap="chooseType">加餐</text></view>
+    <view wx:if="{{ideas.length}}" class="idea-list"><view wx:for="{{ideas}}" wx:key="name" class="idea-row"><view class="idea-copy" data-index="{{index}}" bindtap="reuseMeal"><view>{{item.name}}</view><text>上次 {{item.sourceDate}} · {{item.calories}} kcal</text></view><view class="idea-add" data-index="{{index}}" catchtap="quickReuse">一键记</view></view></view><view wx:else class="idea-empty"><view>常吃的餐食会在这里等你。</view><text>记下第一餐，以后就能一键复用。</text><text class="empty-cta" bindtap="toRecord">记录一餐 →</text></view>
+
+    <view class="section-head"><view><view class="section-index">保持节奏</view><view class="section-title">每一天都算数</view></view></view>
+    <view class="journey-card"><view class="journey-lead"><view class="journey-stamp">✦</view><view><view class="journey-title">记录正在变成习惯</view><view class="journey-sub">{{journey.effectiveDays}} 个有效记录日 · {{journey.completeDays}} 个完整日</view></view></view><view class="badge-row"><view wx:for="{{journey.badges}}" wx:key="id" class="badge {{item.unlocked ? 'unlocked' : ''}}"><view class="badge-symbol">{{item.unlocked ? '✦' : '◇'}}</view><view><view>{{item.title}}</view><text>{{item.count}} / {{item.target}} 天</text></view></view></view><button wx:if="{{meals.length && !journey.todayComplete}}" class="journey-action" bindtap="completeToday">今天已记完整 · 确认记录 →</button><view wx:elif="{{journey.todayComplete}}" class="journey-note">今天已确认。勋章记录的是行动。</view><view wx:else class="journey-note">先记下一餐，晚些时候再确认今天。</view></view>
+
+    <view class="context-card"><view class="context-title">今天有什么变化？</view><view class="context-options"><text class="{{context === 'normal' ? 'active' : ''}}" data-context="normal" bindtap="chooseContext">日常</text><text class="{{context === 'training' ? 'active' : ''}}" data-context="training" bindtap="chooseContext">训练</text><text class="{{context === 'eatingOut' ? 'active' : ''}}" data-context="eatingOut" bindtap="chooseContext">外食</text><text class="{{context === 'busy' ? 'active' : ''}}" data-context="busy" bindtap="chooseContext">忙碌</text></view><view class="context-message">{{contextMessage}}</view></view>
+    <view class="tomorrow-card" bindtap="toPlan"><view><text>明天 / {{tomorrow.typeName}}</text><view>碳水 {{tomorrow.carbs}}g · {{tomorrow.calories}} kcal</view></view><text>↗</text></view>
+    <view class="footnote">计划是工具，不是考试。按真实生活慢慢调整。</view>
+  </view>
+  <view class="bottom-space"></view>
+</view>

@@ -1,0 +1,17 @@
+<view class="profile-page">
+  <view class="profile-header"><view class="eyebrow">我的资料</view><view class="title">把起点写清楚。</view><view class="subtitle">资料用于估算参考目标，可随时回来更新。</view></view>
+  <view class="profile-body"><view class="form-card">
+    <view class="form-title">身体资料</view>
+    <view class="form-grid">
+      <view class="form-cell"><text>计算用性别</text><picker range="{{sexLabels}}" value="{{sexIndex}}" bindchange="chooseSex"><view class="picker-value">{{sexLabels[sexIndex]}}　⌄</view></picker></view>
+      <view class="form-cell"><text>年龄</text><view class="input-wrap"><input type="number" value="{{profile.age}}" placeholder="周岁" data-field="age" bindinput="input" /><text>岁</text></view></view>
+      <view class="form-cell"><text>身高</text><view class="input-wrap"><input type="digit" value="{{profile.heightCm}}" placeholder="厘米" data-field="heightCm" bindinput="input" /><text>cm</text></view></view>
+      <view class="form-cell"><text>当前体重</text><view class="input-wrap"><input type="digit" value="{{profile.weightKg}}" placeholder="千克" data-field="weightKg" bindinput="input" /><text>kg</text></view></view>
+    </view>
+    <view class="activity-row"><text>日常活动量</text><picker range="{{activityLabels}}" value="{{activityIndex}}" bindchange="chooseActivity"><view>{{activityLabels[activityIndex]}}　⌄</view></picker></view>
+    <view class="health-row" bindtap="toggleHealth"><view class="check-box {{profile.healthClear ? 'checked' : ''}}">{{profile.healthClear ? '✓' : ''}}</view><text>我已满 18 岁，且不处于孕哺期，也没有需要个体化饮食方案的疾病、用药或进食障碍情况。</text></view>
+    <button class="button-primary save-button" bindtap="save">保存资料 →</button>
+  </view>
+  <view wx:if="{{hasPlan}}" class="plan-note"><view>现有计划怎样处理？</view><text>更新资料后，当前计划目标仍保持原值。重新计算需要到计划页预览并确认。</text><view class="plan-link" bindtap="toPlan">前往计划 →</view></view>
+  </view><view class="bottom-space"></view>
+</view>

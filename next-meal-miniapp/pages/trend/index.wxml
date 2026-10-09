@@ -1,0 +1,86 @@
+<view class="trend-page">
+  <view class="trend-header">
+    <view class="eyebrow">NEXT MEAL / 趋势</view>
+    <view class="title">看一段路，<view>不看某一天。</view>
+    </view>
+    <view class="subtitle">体重会波动。用连续记录观察变化，比盯着一次数字更有用。</view>
+    <view class="header-orbit"></view>
+  </view>
+  <view class="trend-body">
+    <view class="signal-card">
+      <view class="signal-kicker">14 天观察信号</view>
+      <view class="signal-main">{{deltaText}}</view>
+      <view class="signal-sub">{{result.message}}</view>
+      <view class="signal-stats">
+        <view><text>近 7 天均重</text>
+          <view>{{result.current.average === null ? '—' : result.current.average}} <text>kg</text></view><text>已记 {{result.current.count}} / 7 天</text>
+        </view>
+        <view><text>前 7 天均重</text>
+          <view>{{result.previous.average === null ? '—' : result.previous.average}} <text>kg</text></view><text>已记 {{result.previous.count}} / 7 天</text>
+        </view>
+      </view>
+    </view>
+    <view class="section-head">
+      <view class="eyebrow">01 / 晨重</view>
+      <view class="section-title">记下今天的晨重</view>
+    </view>
+    <view class="weigh-card">
+      <view class="weigh-inputs row">
+        <picker mode="date" value="{{date}}" end="{{today}}" bindchange="chooseDate">
+          <view class="date-pill">◷ {{date}} ▾</view>
+        </picker>
+        <view class="weight-input"><input type="digit" value="{{kg}}" placeholder="例如 70.2" bindinput="inputKg" /><text>kg</text></view>
+      </view><button class="button-primary" bindtap="saveWeight">保存晨重 ↗</button>
+    </view>
+    <view class="section-head">
+      <view class="eyebrow">02 / 最近 7 天</view>
+      <view class="section-title">你已经做到了什么</view>
+    </view>
+    <view class="week-card">
+      <view class="week-numbers">
+        <view><text>{{week.effectiveDays}}</text>
+          <view>天有记录</view>
+        </view>
+        <view><text>{{week.mealCount}}</text>
+          <view>餐已记下</view>
+        </view>
+        <view><text>{{week.reusedMeals}}</text>
+          <view>次直接复用</view>
+        </view>
+      </view>
+      <view class="week-days">
+        <view wx:for="{{week.days}}" wx:key="date" class="week-day">
+          <view class="week-dot {{item.recorded ? 'recorded' : ''}} {{item.complete ? 'complete' : ''}}">{{item.recorded ? '✓' : ''}}</view><text>{{item.label}}</text>
+        </view>
+      </view>
+      <view class="week-message">{{week.message}}</view>
+    </view>
+    <view class="section-head">
+      <view class="eyebrow">03 / 观察</view>
+      <view class="section-title">体重轨迹</view>
+    </view>
+    <view class="chart-card">
+      <view wx:if="{{chartBars.length}}" class="bars">
+        <view wx:for="{{chartBars}}" wx:key="date" class="bar-unit">
+          <view class="bar" style="height: {{item.height}}%;"></view><text>{{item.dayNumber}}</text>
+        </view>
+      </view>
+      <view wx:else class="chart-empty">记录晨重后，轨迹会在这里出现。</view>
+      <view class="chart-note">仅显示最近 14 条记录；纵向位置用于比较变化，不从零开始。</view>
+    </view>
+    <view class="section-head row">
+      <view>
+        <view class="eyebrow">04 / 明细</view>
+        <view class="section-title">记录明细</view>
+      </view><text class="count">{{weights.length}} 条</text>
+    </view>
+    <view class="history-card">
+      <view wx:if="{{!weights.length}}" class="empty">从一条真实记录开始，不需要追求每天都完美。</view>
+      <view wx:for="{{weights}}" wx:key="date" class="weight-row row"><text>{{item.date}}</text>
+        <view>{{item.kg}} <text>kg</text></view>
+      </view>
+    </view>
+    <view class="trend-foot">趋势只用于观察，不会自动调整你的计划。两周各至少 4 天晨重后才展示均重变化。</view>
+  </view>
+  <view class="bottom-space"></view>
+</view>

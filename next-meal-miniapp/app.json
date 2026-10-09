@@ -1,0 +1,31 @@
+{
+  "pages": [
+    "pages/today/index",
+    "pages/plan/index",
+    "pages/record/index",
+    "pages/trend/index",
+    "pages/settings/index",
+    "pages/profile/index",
+    "pages/growth/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "下一餐",
+    "navigationBarBackgroundColor": "#EDF3E7",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F7F7F2"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#829189",
+    "selectedColor": "#265D42",
+    "backgroundColor": "#FFFFFF",
+    "list": [
+      { "pagePath": "pages/today/index", "text": "今日" },
+      { "pagePath": "pages/plan/index", "text": "计划" },
+      { "pagePath": "pages/record/index", "text": "记录" },
+      { "pagePath": "pages/trend/index", "text": "趋势" },
+      { "pagePath": "pages/settings/index", "text": "我的" }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

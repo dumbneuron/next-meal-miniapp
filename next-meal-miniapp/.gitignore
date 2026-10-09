@@ -1,0 +1,3 @@
+node_modules/
+tests/e2e-artifacts/
+tests/e2e-current.png

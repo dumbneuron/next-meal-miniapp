@@ -1,0 +1,47 @@
+<view class="record-page">
+  <view class="record-header">
+    <view class="record-eyebrow">下一餐 · 饮食记录</view>
+    <view class="record-title">这一餐，吃了什么？</view>
+    <view class="record-subtitle">先记下来，之后随时能调整。</view>
+  </view>
+  <view class="record-body">
+    <view wx:if="{{lastAddedMealId}}" class="undo-strip"><text>✓ 已记入 {{lastAddedName}}</text><text bindtap="undoLastMeal">撤销 ›</text></view>
+    <view wx:if="{{lastAddedMealId}}" class="record-feedback">{{lastAddedSummary}}</view>
+    <view wx:if="{{quick.length || quickSearch}}" class="quick-card">
+      <view class="quick-heading"><view><view class="entry-kicker">上次吃过</view><view class="quick-title">熟悉的，点一下就记好</view></view><text class="quick-jump" bindtap="jumpToManual">搜新食物 ↓</text></view>
+      <view class="quick-search"><text>⌕</text><input value="{{quickSearch}}" placeholder="搜索之前吃过的" bindinput="searchQuick" /></view>
+      <view wx:if="{{quick.length}}" class="quick-list"><view wx:for="{{quick}}" wx:key="id" class="quick-item"><view class="quick-copy"><view class="quick-name">{{item.name}}</view><view class="quick-meta">{{item.calories}} kcal · 上次 {{item.date}}</view></view><view class="quick-actions"><text data-index="{{index}}" bindtap="editReuse">调份量</text><text class="quick-primary" data-index="{{index}}" bindtap="quickReuse">记入</text></view></view></view>
+      <view wx:else class="quick-empty">暂时没找到，继续在下方搜索普通食物。</view>
+    </view>
+    <view id="manual-entry" class="entry-card">
+      <view class="entry-heading"><view><view class="entry-kicker">搜索或添加</view><view class="entry-title">这一餐吃了什么？</view></view><view class="barcode-open" bindtap="toggleBarcode">▥ 扫包装食品</view></view>
+      <view id="manual-fields" class="meal-choices"><view wx:for="{{typeLabels}}" wx:key="*this" class="meal-choice {{typeIndex === index ? 'selected' : ''}}" data-index="{{index}}" bindtap="selectMealType">{{item}}</view></view>
+      <view class="food-search"><text>⌕</text><input value="{{foodQuery}}" maxlength="40" placeholder="搜米饭、鸡蛋、香蕉等普通食物" bindinput="inputFoodQuery" /></view>
+      <view wx:if="{{foodError}}" class="barcode-error">{{foodError}}</view>
+      <view wx:if="{{foodBusy}}" class="food-status">正在查找…</view>
+      <view wx:elif="{{foodResults.length && !foodCandidate}}" class="food-results"><view wx:for="{{foodResults}}" wx:key="fdcId" class="food-hit" data-index="{{index}}" bindtap="selectFood"><view><view class="food-hit-name">{{item.name}}</view><view class="food-hit-detail">每 100g · {{item.nutrition.calories}} kcal</view></view><text>选份量 ›</text></view></view>
+      <view wx:elif="{{foodQuery && !foodCandidate}}" class="food-status">这批食物里暂无匹配，可继续手动填写。</view>
+      <view wx:if="{{foodCandidate}}" class="food-selected"><view class="food-selected-head"><view><view class="food-hit-name">{{foodCandidate.name}}</view><view class="food-hit-detail">每 100g · {{foodCandidate.nutrition.calories}} kcal · 蛋白 {{foodCandidate.nutrition.protein}}g</view></view><text bindtap="changeFood">换一个</text></view><view class="food-portion"><text>实际吃了</text><input type="digit" value="{{foodAmount}}" bindinput="inputFoodAmount" /><text>g</text><text wx:if="{{foodPreview}}" class="food-kcal">约 {{foodPreview.calories}} kcal</text></view><view class="food-disclaimer">USDA SR Legacy 2018 参考值，留意生熟状态和烹调方式；请确认份量。</view><button class="barcode-use" bindtap="saveFoodCandidate">确认份量 · 记入今天</button><view class="food-adjust" bindtap="useFoodCandidate">先填入表单微调 ›</view></view>
+      <view wx:if="{{showBarcode}}" class="barcode-panel">
+        <view class="barcode-title">包装食品条码</view><view class="barcode-sub">扫描条码或输入数字，先看商品资料，再确认实际吃了多少。</view>
+        <view class="barcode-row"><input value="{{barcodeInput}}" type="number" maxlength="14" placeholder="8–14 位商品条码" bindinput="inputBarcode" /><view bindtap="scanBarcode">扫码</view><view bindtap="queryBarcode">{{barcodeBusy ? '查询中' : '查询'}}</view></view>
+        <view wx:if="{{barcodeError}}" class="barcode-error">{{barcodeError}}</view>
+        <view wx:if="{{barcodeCandidate}}" class="barcode-result"><view class="barcode-name">{{barcodeCandidate.name}}</view><view class="barcode-meta">{{barcodeCandidate.brand}} · 每 100{{barcodeCandidate.basisUnit}} {{barcodeCandidate.nutrition.calories}} kcal</view><view class="barcode-amount"><text>实际吃了</text><input type="digit" value="{{barcodeAmount}}" bindinput="inputBarcodeAmount" /><text>{{barcodeCandidate.basisUnit}}</text></view><view wx:if="{{barcodePreview}}" class="barcode-total">这一份约 <text>{{barcodePreview.calories}} kcal</text></view><view class="barcode-source">来源：Open Food Facts 社区数据。请和包装营养标签核对，份量与热量可继续修改。</view><button class="barcode-use" bindtap="useBarcodeCandidate">填入这一餐 →</button></view>
+      </view>
+      <view wx:if="{{barcodeSource}}" class="source-note">已从商品条码填入 · 请确认包装标签与实际份量</view>
+      <view wx:if="{{catalogSource}}" class="source-note">已从普通食物库填入 · 请确认份量和生熟状态</view>
+      <view id="meal-form" wx:if="{{editingMealId}}" class="editing-banner"><text>正在修改这条记录</text><text bindtap="cancelEdit">取消</text></view>
+      <view class="field"><text class="field-label">吃了什么</text><input class="field-input main-input" value="{{form.name}}" maxlength="60" placeholder="例如：牛肉饭、苹果" data-field="name" bindinput="input" /></view>
+      <view class="field"><text class="field-label">热量 <text class="field-unit">kcal</text></text><input class="field-input main-input" type="digit" value="{{form.calories}}" placeholder="包装标签上的热量" data-field="calories" bindinput="input" /></view>
+      <view class="entry-options"><picker mode="date" value="{{form.date}}" end="{{today}}" bindchange="chooseDate"><view class="date-option">◷ {{form.date}} <text>⌄</text></view></picker><view class="macro-option" bindtap="toggleMacros">营养素 {{showMacros ? '收起 −' : '选填 ＋'}}</view></view>
+      <view wx:if="{{reuseBase}}" class="portion-panel"><view class="portion-title">按上次记录调整份量</view><view class="portion-options"><text class="{{portionScale === 0.5 ? 'active' : ''}}" data-factor="0.5" bindtap="choosePortionScale">半份</text><text class="{{portionScale === 1 ? 'active' : ''}}" data-factor="1" bindtap="choosePortionScale">1 份</text><text class="{{portionScale === 1.5 ? 'active' : ''}}" data-factor="1.5" bindtap="choosePortionScale">1.5 份</text><text class="{{portionScale === 2 ? 'active' : ''}}" data-factor="2" bindtap="choosePortionScale">2 份</text></view></view>
+      <view wx:if="{{showMacros}}" class="macro-inputs"><view class="field"><text class="field-label">蛋白 · g</text><input class="field-input" type="digit" value="{{form.protein}}" placeholder="0" data-field="protein" bindinput="input" /></view><view class="field"><text class="field-label">碳水 · g</text><input class="field-input" type="digit" value="{{form.carbs}}" placeholder="0" data-field="carbs" bindinput="input" /></view><view class="field"><text class="field-label">脂肪 · g</text><input class="field-input" type="digit" value="{{form.fat}}" placeholder="0" data-field="fat" bindinput="input" /></view><view class="macro-note">热量留空时，按蛋白 4 / 碳水 4 / 脂肪 9 千卡每克换算。</view></view>
+      <view wx:if="{{entryError}}" class="entry-error">{{entryError}}</view>
+      <button class="button-primary save-button" bindtap="save">{{editingMealId ? '保存修改' : '保存这一餐'}} <text>→</text></button>
+    </view>
+    <view class="recent-heading"><view><view class="entry-kicker">已记录</view><view class="recent-title">最近吃过</view></view><text>{{recent.length}} 条</text></view>
+    <view wx:if="{{!recent.length}}" class="empty-list">记录完成后，这里会保留你的餐食。</view>
+    <view wx:else class="recent-list"><view wx:for="{{recent}}" wx:key="id" class="recent-item"><view class="recent-icon">{{item.type === 'breakfast' ? '☀' : item.type === 'lunch' ? '◒' : item.type === 'dinner' ? '◗' : '✳'}}</view><view class="recent-copy"><view class="recent-name">{{item.name}}</view><view class="recent-meta">{{item.date}} · {{item.typeLabel}}</view></view><view class="recent-end"><view>{{item.calories}} <text>kcal</text></view><view class="recent-tools"><text data-index="{{index}}" catchtap="editMeal">修改</text><text class="delete" data-id="{{item.id}}" catchtap="remove">删除</text></view></view></view></view>
+  </view>
+  <view class="bottom-space"></view>
+</view>

@@ -1,0 +1,7 @@
+<view class="tab-dock">
+  <view class="bar">
+    <view wx:for="{{items}}" wx:key="path" class="item {{selected === index ? 'active' : ''}}" data-index="{{index}}" bindtap="onTap">
+      <view class="icon-wrap"><text class="mark">{{item.mark}}</text></view><text class="label">{{item.label}}</text>
+    </view>
+  </view>
+</view>

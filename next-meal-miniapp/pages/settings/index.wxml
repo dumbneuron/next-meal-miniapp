@@ -1,0 +1,33 @@
+<view class="mine-page">
+  <view class="mine-header"><view class="mine-eyebrow">NEXT MEAL · 我的</view><view class="mine-title">把日子过成自己的节奏。</view><view class="mine-subtitle">计划在这里，成长也在这里。</view></view>
+  <view class="mine-body">
+    <view class="profile-card">
+      <view class="profile-top" bindtap="toProfile"><view class="profile-avatar">N.</view><view class="profile-identity"><view class="profile-name">我的饮食档案</view><view class="profile-sub">{{hasProfile ? '资料已保存 · 可随时调整' : '先填写资料，自动生成参考目标'}}</view></view><text class="profile-edit">{{hasProfile ? '编辑' : '填写'}}资料 ›</text></view>
+      <view class="profile-bottom"><view class="weight-summary"><text>{{weightLabel}}</text><view>{{weightDisplay}}<text> kg</text></view></view><view class="profile-summary"><view>{{profileInfo.age}} 岁 · {{profileInfo.height}} cm</view><text>{{profileInfo.sex}} · {{profileInfo.activity}}</text></view></view>
+    </view>
+
+    <view class="mine-section-label">正在执行</view>
+    <view class="manage-card" bindtap="toPlan"><view class="manage-icon">01</view><view class="manage-copy"><view class="manage-title">{{planName}}</view><view class="manage-sub">{{hasPlan ? '查看本周安排与今日目标' : '选一个方式，系统帮你算目标'}}</view></view><text>›</text></view>
+
+    <view class="mine-section-label">我的成长</view>
+    <view class="growth-card" bindtap="toGrowth"><view class="growth-icon">✦</view><view class="growth-copy"><view class="growth-title">{{featuredBadge ? featuredBadge.title : '从第一餐开始'}}</view><view class="growth-message">{{growthHeadline}}</view><view wx:if="{{featuredBadge}}" class="badge-track"><view class="badge-fill-{{featuredBadge.progressPercent}}"></view></view></view><view class="growth-arrow">›</view></view>
+    <view class="growth-foot"><text>{{growth.effectiveDays}} 天有记录</text><text>{{growth.completeDays}} 天已确认完整</text><text bindtap="toGrowth">查看勋章 ›</text></view>
+
+    <view class="mine-section-label">常用入口</view>
+    <view class="shortcut-card"><view class="shortcut-row" bindtap="toTrend"><view class="shortcut-mark">↗</view><view><view class="shortcut-title">体重与记录趋势</view><text>观察一段时间，不盯一天的数字</text></view><text class="shortcut-arrow">›</text></view><view class="shortcut-row" bindtap="toggleHistory"><view class="shortcut-mark">◷</view><view><view class="shortcut-title">计划使用记录</view><text>{{planCount}} 次启用 · {{showHistory ? '收起' : '查看最近'}}</text></view><text class="shortcut-arrow">{{showHistory ? '⌃' : '›'}}</text></view></view>
+    <view wx:if="{{showHistory && history.length}}" class="history-card"><view wx:for="{{history}}" wx:key="confirmedAt" class="history-line"><text>{{item.name}}</text><text>{{item.date}}</text></view></view>
+    <view wx:if="{{showHistory && !history.length}}" class="history-card history-empty">还没有启用过计划，先到计划页看看。</view>
+
+    <view class="mine-section-label">账号与数据</view>
+    <view class="tools-card">
+      <view class="tool-row" bindtap="toggleDataTools"><view class="tool-icon">↧</view><view><view class="tool-title">{{syncStatus.paired ? '已连接本地后台' : '当前保存在本机'}}</view><view class="tool-sub">配对、同步、备份与数据管理</view></view><text class="tool-arrow">{{showDataTools ? '⌃' : '›'}}</text></view>
+      <view wx:if="{{showDataTools}}" class="data-tools">
+        <view wx:if="{{syncStatus.paired}}" class="sync-panel"><view class="sync-id">用户 ID：{{syncStatus.userId}}</view><view class="data-sub">待同步 {{syncStatus.pending}} 条 · 上次成功 {{syncStatus.lastSyncedAt || '等待首次同步'}}</view><view wx:if="{{syncStatus.lastError}}" class="sync-error">{{syncStatus.lastError}}</view><button wx:if="{{syncStatus.conflict}}" class="conflict-button" bindtap="resolvePlanConflict">处理计划冲突 · 采用后台版</button><button wx:if="{{syncStatus.needsPairing}}" class="button-secondary" bindtap="forgetExpiredSession">连接已失效 · 准备重新配对</button><button wx:else class="button-secondary" loading="{{syncing}}" bindtap="syncNow">立即同步 →</button><view wx:if="{{!syncStatus.needsPairing}}"><button class="button-secondary" bindtap="toggleDevices">{{showDevices ? '收起设备列表' : '管理已连接设备'}}</button><view wx:if="{{showDevices}}" class="device-list"><view wx:for="{{devices}}" wx:key="id" class="device-row"><view><view class="device-title">{{item.current ? '当前设备' : '其他设备'}}</view><view class="data-sub">连接 {{item.createdLabel}} · 最近 {{item.lastSeenLabel}}</view></view><text wx:if="{{!item.current}}" class="device-revoke" data-id="{{item.id}}" bindtap="revokeDevice">退出</text></view></view><button class="disconnect-button" bindtap="disconnectDevice">断开这台设备并清空本机</button></view></view>
+        <view wx:else class="sync-panel"><view class="import-heading">连接本地测试账号</view><view wx:if="{{syncStatus.lastUserId}}" class="data-sub">上次用户 ID：{{syncStatus.lastUserId}} · 请为同一用户生成配对码</view><input class="pair-input" value="{{pairCode}}" placeholder="输入后台生成的一次性配对码" bindinput="pairInput" /><button class="button-secondary" loading="{{syncing}}" bindtap="pairDevice">连接并合并本机记录 →</button></view>
+        <button class="button-secondary" bindtap="exportBackup">复制 JSON 备份 →</button><view wx:if="{{!syncStatus.paired}}"><view class="import-heading">已有备份？</view><textarea class="field-area" value="{{backupText}}" placeholder="粘贴 JSON，检查后导入" bindinput="importInput" /><button class="import-button" bindtap="importBackup">检查并导入备份</button></view><view wx:else class="data-sub import-heading">已连接后台的设备暂不导入本机备份，避免覆盖其他设备的新记录。</view><button class="delete-button" bindtap="deleteAllData">删除全部个人数据</button>
+      </view>
+    </view>
+    <view class="about-card"><view class="about-icon">✳</view><view><view>关于下一餐</view><text>计划、记录与复盘，服务真实的一日三餐。</text></view></view>
+    <view class="disclaimer">当前为本地后台联调版。正式账号、云环境和完整数据保护流程仍待接入与验证。</view>
+  </view><view class="bottom-space"></view>
+</view>
